@@ -206,7 +206,7 @@ export default {
 
       try {
         const response = await axios.post(
-          "http://localhost:3000/predict",
+          "https://mlblivetracker.onrender.com/predict",
           playerStats
         );
 
