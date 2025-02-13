@@ -3,9 +3,9 @@
     <transition name="fade" @after-leave="onSplashLeave">
       <SplashScreen v-if="showSplash" />
     </transition>
-    <HeaderApp />
-    <router-view />
-    <FooterApp />
+    <HeaderApp v-if="!showSplash" />
+    <router-view v-if="!showSplash" />
+    <FooterApp v-if="!showSplash" />
   </div>
 </template>
 
@@ -13,6 +13,7 @@
 import HeaderApp from './components/HeaderApp.vue';
 import FooterApp from './components/FooterApp.vue';
 import SplashScreen from "@/components/SplashScreen.vue"; 
+
 export default {
   components: {
     HeaderApp,
@@ -25,34 +26,14 @@ export default {
     };
   },
   mounted() {
-    
     setTimeout(() => {
       this.showSplash = false; 
     }, 3000);
+  },
+  methods: {
+    onSplashLeave() {
+      this.$router.push('/'); 
+    }
   }
 };
 </script>
-
-<style>
-#app {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-.main-content {
-  flex-grow: 1; 
-}
-
-footer {
-  margin-top: auto; 
-}
-
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 1s ease;
-}
-
-.fade-enter, .fade-leave-to {
-  opacity: 0;
-}
-</style>
