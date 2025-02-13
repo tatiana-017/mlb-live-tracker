@@ -5,7 +5,7 @@ import App from "./App.vue";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faUserPlus, faArrowRight } from "@fortawesome/free-solid-svg-icons"; // Icono de usuario y arrow-right
-import { createRouter, createWebHistory } from "vue-router"; // Asegura que vue-router está importado correctamente
+import { createRouter, createWebHashHistory } from "vue-router"; // Asegura que vue-router está importado correctamente
 import Home from "./Views/Home.vue";
 import Players from "./Views/Players.vue";
 import PlayersDetails from "./Views/PlayersDetails.vue";
@@ -24,7 +24,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes,
 });
 
