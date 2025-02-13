@@ -3,21 +3,35 @@ import cors from "cors";
 import axios from "axios";
 import { GoogleAuth } from "google-auth-library";
 import dotenv from "dotenv";
+import fs from "fs";
 
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3000; // Use environment variable for port if available
+const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+
+// Decodificar credenciales Base64 y guardarlas en un archivo temporal
+const credentialsPath = "/tmp/gcp-credentials.json"; // Ruta segura en Render
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS_BASE64) {
+  fs.writeFileSync(
+    credentialsPath,
+    Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_BASE64, "base64")
+  );
+}
 
 app.post("/predict", async (req, res) => {
   const inputData = req.body;
   console.log(inputData);
 
   try {
-    const auth = new GoogleAuth(); // No need to specify scopes if using default credentials
+    const auth = new GoogleAuth({
+      keyFilename: credentialsPath, 
+      scopes: ["https://www.googleapis.com/auth/cloud-platform"],
+    });
+
     const client = await auth.getClient();
     const token = await client.getAccessToken();
 
@@ -28,15 +42,13 @@ app.post("/predict", async (req, res) => {
       { instances: [inputData] },
       {
         headers: {
-          Authorization: `Bearer ${token.token}`, // Access token from token.token
+          Authorization: `Bearer ${token.token}`, 
           "Content-Type": "application/json",
         },
       }
     );
 
-    const lowerBound = response.data.predictions[0].lower_bound;
-    const upperBound = response.data.predictions[0].upper_bound;
-    const value = response.data.predictions[0].value;
+    const { lower_bound: lowerBound, upper_bound: upperBound, value } = response.data.predictions[0];
 
     res.json({
       prediction: {
@@ -49,13 +61,13 @@ app.post("/predict", async (req, res) => {
     console.error("Error en la predicción:", error);
 
     if (error.response) {
-      console.error("Response Error Details:", error.response.data); // Log full error details
+      console.error("Detalles del error en la respuesta:", error.response.data);
       res.status(error.response.status).json({ error: error.response.data });
     } else if (error.request) {
-      console.error("Request Error Details:", error.request); // Log request details
-      res.status(500).json({ error: "No response received from the server" });
+      console.error("Detalles del error en la solicitud:", error.request);
+      res.status(500).json({ error: "No se recibió respuesta del servidor" });
     } else {
-      console.error("Axios Setup Error:", error.message); // Log setup errors
+      console.error("Error en la configuración de Axios:", error.message);
       res.status(500).json({ error: error.message });
     }
   }
