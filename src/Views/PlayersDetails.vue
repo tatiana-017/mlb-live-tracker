@@ -210,7 +210,7 @@ export default {
           playerStats
         );
 
-        const dataPrediction = response.data.predictions[0];
+        const dataPrediction = response.data.prediction;
         const predictionValue = dataPrediction.value;
         const lowerBound = dataPrediction.lower_bound;
         const upperBound = dataPrediction.upper_bound;
